@@ -14,18 +14,38 @@ export default function TeacherCreateLiveSession() {
   });
 
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    setError(null);
+
+    if (!form.title || !form.start_time || !form.end_time) {
+      setError("Please fill all required fields.");
+      return;
+    }
+
     try {
+      setLoading(true);
+
       await api.post("/livestream/sessions/", {
-        ...form,
-        subject_id: subjectId,
+        title: form.title,
+        description: form.description,
+        subject_id: subjectId, // ✅ backend expects this
+        start_time: new Date(form.start_time).toISOString(), // ✅ correct ISO format
+        end_time: new Date(form.end_time).toISOString(),
       });
 
       navigate(-1);
     } catch (err) {
-      console.error(err);
-      setError("Failed to create session.");
+      console.error(err.response?.data);
+
+      if (err.response?.data) {
+        setError(JSON.stringify(err.response.data));
+      } else {
+        setError("Failed to create session.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,6 +65,8 @@ export default function TeacherCreateLiveSession() {
         }
       />
 
+      <br /><br />
+
       <textarea
         placeholder="Description"
         value={form.description}
@@ -53,8 +75,11 @@ export default function TeacherCreateLiveSession() {
         }
       />
 
+      <br /><br />
+
       <input
         type="datetime-local"
+        value={form.start_time}
         onChange={(e) =>
           setForm({
             ...form,
@@ -63,8 +88,11 @@ export default function TeacherCreateLiveSession() {
         }
       />
 
+      <br /><br />
+
       <input
         type="datetime-local"
+        value={form.end_time}
         onChange={(e) =>
           setForm({
             ...form,
@@ -73,8 +101,10 @@ export default function TeacherCreateLiveSession() {
         }
       />
 
-      <button onClick={handleSubmit}>
-        Create Session
+      <br /><br />
+
+      <button onClick={handleSubmit} disabled={loading}>
+        {loading ? "Creating..." : "Create Session"}
       </button>
     </div>
   );
