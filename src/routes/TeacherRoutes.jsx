@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import TeacherLayout from "../layout/TeacherLayout";
 import TeacherDashboard from "../pages/TeacherDashboard";
 import ClassesList from "../pages/ClassesList";
@@ -22,8 +23,8 @@ import StudyMaterialView from "../pages/StudyMaterialView";
 import SessionRecordings from "../pages/SessionRecordings";
 import UploadRecording from "../pages/UploadRecording";
 
-/* 🔴 LIVE SESSION PAGES */
-import TeacherLiveSessions from "../pages/TeacherLiveSessions";
+/* ✅ LIVE SESSION PAGES (Corrected) */
+import LiveSessions from "../pages/LiveSessions";
 import TeacherCreateLiveSession from "../pages/TeacherCreateLiveSession";
 
 export default function TeacherRoutes() {
@@ -108,7 +109,7 @@ export default function TeacherRoutes() {
         {/* ================= LIVE SESSIONS ================= */}
         <Route
           path="/teacher/classes/:subjectId/live-sessions"
-          element={<TeacherLiveSessions />}
+          element={<LiveSessions />}
         />
         <Route
           path="/teacher/classes/:subjectId/live-sessions/create"
