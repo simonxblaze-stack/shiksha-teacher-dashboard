@@ -11,23 +11,21 @@ export default function Quizzes() {
 
   const [quizzes, setQuizzes] = useState([]);
 
+  useEffect(() => {
+    async function fetchQuizzes() {
+      try {
+        const res = await api.get(
+          `/teacher/subjects/${subjectId}/quizzes/`
+        );
 
-
-useEffect(() => {
-  async function fetchQuizzes() {
-    try {
-      const res = await api.get(
-        `/teacher/subjects/${subjectId}/quizzes/`
-      );
-
-      setQuizzes(res.data.results || res.data);
-    } catch (err) {
-      console.error("Failed to load quizzes", err);
+        setQuizzes(res.data.results || res.data);
+      } catch (err) {
+        console.error("Failed to load quizzes", err);
+      }
     }
-  }
 
-  fetchQuizzes();
-}, [subjectId]);
+    fetchQuizzes();
+  }, [subjectId]);
 
   return (
     <div className="quizzes-page">
@@ -71,21 +69,32 @@ useEffect(() => {
           {quizzes.map((quiz, index) => (
             <div className="quiz-row" key={quiz.id || index}>
               <div className="quiz-info">
-                <span className="quiz-id">Quiz - {quiz.id}</span>
-                <span className="quiz-name">{quiz.title}</span>
+
+                {/* FIX 1 — show title instead of UUID */}
+                <span className="quiz-id">{quiz.title}</span>
+
+                {/* Optional: show short ID */}
+                <span className="quiz-name">ID: {quiz.id.slice(0,8)}</span>
+
               </div>
 
               <div className="quiz-detail">
                 <span className="quiz-label">Created:</span>
+
+                {/* FIX 2 — use created_at */}
                 <span className="quiz-value">
-                  {quiz.dateCreated}
+                  {quiz.created_at
+                    ? new Date(quiz.created_at).toLocaleString()
+                    : "-"}
                 </span>
               </div>
 
               <div className="quiz-detail">
                 <span className="quiz-label">Questions:</span>
+
+                {/* FIX 3 — use questions_count */}
                 <span className="quiz-value bold">
-                  {quiz.questions?.length || 0}
+                  {quiz.questions_count ?? 0}
                 </span>
               </div>
 
