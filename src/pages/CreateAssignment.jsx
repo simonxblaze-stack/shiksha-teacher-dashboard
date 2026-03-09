@@ -11,7 +11,7 @@ export default function CreateAssignment() {
   const { subjectId } = useParams();
   const { state: editData } = useLocation();
 
-  const isEditing = !!editData;
+  const isEditing = Boolean(editData);
 
   const [chapters, setChapters] = useState([]);
   const [chapterId, setChapterId] = useState(editData?.chapter_id || "");
@@ -27,20 +27,27 @@ export default function CreateAssignment() {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+
     async function fetchChapters() {
       try {
+
         const res = await api.get(`/courses/subject/${subjectId}/`);
-        setChapters(res.data.chapters || []);
+        setChapters(res.data?.chapters || []);
+
       } catch (err) {
+
         console.error(err);
         toast.error("Failed to load chapters.");
+
       }
     }
 
     if (subjectId) fetchChapters();
+
   }, [subjectId]);
 
   const validate = () => {
+
     const newErrors = {};
 
     if (!chapterId) newErrors.chapter = "Chapter required";
@@ -65,11 +72,7 @@ export default function CreateAssignment() {
       formData.append("chapter_id", chapterId);
       formData.append("title", title);
       formData.append("description", description);
-
-      formData.append(
-        "due_date",
-        new Date(dueDate).toISOString()
-      );
+      formData.append("due_date", new Date(dueDate).toISOString());
 
       if (file) {
         formData.append("attachment", file);
@@ -92,11 +95,12 @@ export default function CreateAssignment() {
         );
 
         toast.success("Assignment created successfully");
+
       }
 
       setTimeout(() => {
         navigate(`/teacher/classes/${subjectId}/assignments`);
-      }, 800);
+      }, 600);
 
     } catch (err) {
 
@@ -120,9 +124,7 @@ export default function CreateAssignment() {
       </button>
 
       <div className="ca-title-container">
-        <h2>
-          {isEditing ? "Edit Assignment" : "Create Assignment"}
-        </h2>
+        <h2>{isEditing ? "Edit Assignment" : "Create Assignment"}</h2>
       </div>
 
       <div className="ca-form-container">
@@ -156,6 +158,7 @@ export default function CreateAssignment() {
 
           {/* Title */}
           <div className="ca-field">
+
             <label>Title</label>
 
             <input
@@ -173,6 +176,7 @@ export default function CreateAssignment() {
 
           {/* Description */}
           <div className="ca-field">
+
             <label>Description</label>
 
             <textarea
@@ -190,6 +194,7 @@ export default function CreateAssignment() {
 
           {/* Due Date */}
           <div className="ca-field">
+
             <label>Due Date</label>
 
             <input
@@ -205,20 +210,21 @@ export default function CreateAssignment() {
 
           </div>
 
-          {/* File */}
+          {/* File Upload */}
           <div className="ca-field">
+
             <label>Attach File</label>
 
             <input
               type="file"
               ref={fileInputRef}
               hidden
-              onChange={(e) => setFile(e.target.files[0])}
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
             />
 
             <button
               type="button"
-              onClick={() => fileInputRef.current.click()}
+              onClick={() => fileInputRef.current?.click()}
               className="ca-add-file-btn"
             >
               + Add File
@@ -234,12 +240,14 @@ export default function CreateAssignment() {
 
           {/* Submit */}
           <div className="ca-actions">
+
             <button
               className="ca-create-btn"
               onClick={handleSubmit}
             >
               {isEditing ? "Update" : "Create"}
             </button>
+
           </div>
 
         </div>
