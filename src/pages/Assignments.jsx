@@ -27,7 +27,7 @@ export default function Assignments() {
     async function fetchAssignments() {
       try {
         const res = await api.get(
-          `/assignments/teacher/subjects/${subjectId}/`
+          `/assignments/teacher/subject/${subjectId}/`
         );
         setAssignments(res.data);
       } catch (err) {
