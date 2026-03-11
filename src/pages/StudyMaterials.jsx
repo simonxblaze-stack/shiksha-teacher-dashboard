@@ -14,7 +14,14 @@ export default function StudyMaterials() {
   const [materials, setMaterials] = useState([]);
 
   useEffect(() => {
+
+    if (!subjectId) {
+      console.error("subjectId missing in URL");
+      return;
+    }
+
     loadMaterials();
+
   }, [subjectId]);
 
   const loadMaterials = async () => {
@@ -53,6 +60,17 @@ export default function StudyMaterials() {
 
   };
 
+  const handleAddMaterial = () => {
+
+    if (!subjectId) {
+      console.error("Cannot navigate: subjectId missing");
+      return;
+    }
+
+    navigate(`/teacher/classes/${subjectId}/study-materials/upload`);
+
+  };
+
   return (
 
     <div className="study-materials-page">
@@ -83,9 +101,7 @@ export default function StudyMaterials() {
 
           <button
             className="sm-add-btn"
-            onClick={() =>
-              navigate(`/teacher/classes/${subjectId}/study-materials/upload`)
-            }
+            onClick={handleAddMaterial}
           >
             + Add Study Material
           </button>
