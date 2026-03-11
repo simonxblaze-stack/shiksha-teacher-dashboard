@@ -21,7 +21,6 @@ export default function UploadMaterial() {
   };
 
   const handleFileChange = (e) => {
-
     const selected = Array.from(e.target.files || []);
 
     if (selected.length > 0) {
@@ -53,7 +52,6 @@ export default function UploadMaterial() {
       setUploading(true);
 
       const formData = new FormData();
-
       formData.append("title", title);
 
       files.forEach((file) => {
@@ -62,14 +60,20 @@ export default function UploadMaterial() {
 
       await api.post(
         `/materials/chapters/${subjectId}/materials/upload/`,
-        formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }
       );
 
+      alert("Upload successful");
       navigate(-1);
 
     } catch (err) {
 
-      console.error("Upload failed:", err);
+      console.error("Upload failed:", err.response?.data || err);
       alert("Upload failed");
 
     } finally {
