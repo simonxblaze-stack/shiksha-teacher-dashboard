@@ -181,3 +181,147 @@
 .assignment-view-btn:hover {
   background: #3d9aa8;
 }
+
+/* mobile + large phone */
+@media (max-width: 768px) {
+  .assignments-page {
+    gap: 10px;
+  }
+
+  .assignments-back-btn {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+
+  .assignments-title-container {
+    padding: 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .assignments-title {
+    font-size: 20px;
+  }
+
+  .assignments-search {
+    width: 100%;
+  }
+
+  .assignments-search input {
+    width: 100%;
+    height: 38px;
+  }
+
+  .assignments-list-container {
+    padding: 16px;
+  }
+
+  .assignments-actions {
+    justify-content: stretch;
+    margin-bottom: 12px;
+  }
+
+  .assignments-create-btn {
+    width: 100%;
+    padding: 10px 16px;
+  }
+
+  .assignment-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .assignment-info {
+    width: 100%;
+    flex: unset;
+    min-width: 0;
+  }
+
+  .assignment-id {
+    font-size: 13px;
+    word-break: break-word;
+  }
+
+  .assignment-name {
+    font-size: 12px;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .assignment-detail {
+    width: 100%;
+    flex: unset;
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    align-items: start;
+    gap: 4px 10px;
+  }
+
+  .assignment-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .assignment-value {
+    font-size: 13px;
+    margin-top: 0;
+    text-align: left;
+    word-break: break-word;
+  }
+
+  .assignment-value.bold {
+    font-size: 14px;
+  }
+
+  .assignment-view-btn {
+    margin-left: 0;
+    margin-top: 4px;
+    align-self: flex-end;
+    padding: 8px 18px;
+    border-radius: 10px;
+  }
+}
+
+/* small phone */
+@media (max-width: 480px) {
+  .assignments-title-container {
+    padding: 14px;
+  }
+
+  .assignments-title {
+    font-size: 18px;
+  }
+
+  .assignments-list-container {
+    padding: 14px;
+  }
+
+  .assignment-row {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .assignment-detail {
+    grid-template-columns: 80px 1fr;
+    gap: 4px 8px;
+  }
+
+  .assignment-label,
+  .assignment-value {
+    font-size: 12px;
+  }
+
+  .assignment-value.bold {
+    font-size: 13px;
+  }
+
+  .assignment-view-btn {
+    width: 100%;
+    align-self: stretch;
+    text-align: center;
+  }
+}
