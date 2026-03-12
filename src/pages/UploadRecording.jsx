@@ -49,10 +49,11 @@ export default function UploadRecording() {
     try {
 
       setUploading(true);
+      setUploadProgress(0);
 
       console.log("Creating Bunny video slot...");
-      console.log("UPLOAD KEY:", import.meta.env.VITE_BUNNY_UPLOAD_KEY);
-      // 1️⃣ Ask Django to create Bunny video slot
+
+      // 1️⃣ Create video slot via Django
       const res = await api.post(
         "/courses/recordings/create-video/",
         { title: topic }
@@ -62,9 +63,11 @@ export default function UploadRecording() {
 
       console.log("Video slot created:", videoId);
 
-      // 2️⃣ Upload video directly to Bunny Storage
+      // 2️⃣ Correct Bunny Stream upload endpoint
       const uploadUrl =
-        `https://storage.bunnycdn.com/library/${import.meta.env.VITE_BUNNY_LIBRARY_ID}/videos/${videoId}`;
+        `https://video.bunnycdn.com/library/${import.meta.env.VITE_BUNNY_LIBRARY_ID}/videos/${videoId}`;
+
+      console.log("Upload URL:", uploadUrl);
 
       const xhr = new XMLHttpRequest();
 
@@ -88,21 +91,29 @@ export default function UploadRecording() {
             (e.loaded / e.total) * 100
           );
 
+          console.log("Upload progress:", percent);
+
           setUploadProgress(percent);
         }
       };
 
       xhr.onload = async () => {
 
-        console.log("Upload finished", xhr.status);
+        console.log("Upload finished:", xhr.status);
 
         if (xhr.status !== 200 && xhr.status !== 201) {
-          alert("Upload failed");
+
+          console.error("Upload error:", xhr.responseText);
+
+          alert("Upload failed. Check console.");
+
           setUploading(false);
           return;
         }
 
-        // 3️⃣ Save metadata in Django
+        console.log("Saving recording metadata...");
+
+        // 3️⃣ Save metadata to Django
         await api.post(
           `/courses/subjects/${subjectId}/recordings/save/`,
           {
@@ -119,8 +130,11 @@ export default function UploadRecording() {
       };
 
       xhr.onerror = () => {
-        console.error("Upload failed");
+
+        console.error("Upload network error");
+
         alert("Upload failed");
+
         setUploading(false);
       };
 
@@ -128,7 +142,8 @@ export default function UploadRecording() {
 
     } catch (err) {
 
-      console.error(err);
+      console.error("Upload exception:", err);
+
       alert("Something went wrong");
 
       setUploading(false);
