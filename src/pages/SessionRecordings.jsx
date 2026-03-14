@@ -1,23 +1,54 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { IoChevronBack } from "react-icons/io5";
 import { FiSearch } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import api from "../api/apiClient";
 import "../styles/session-recordings.css";
-
-const defaultRecordings = [
-  { subject: "Subject Name", topic: "Title/Topic", teacher: "Teacher's Name", date: "Date", duration: "Duration" },
-  { subject: "Subject Name", topic: "Title/Topic", teacher: "Teacher's Name", date: "Date", duration: "Duration" },
-  { subject: "Subject Name", topic: "Title/Topic", teacher: "Teacher's Name", date: "Date", duration: "Duration" },
-  { subject: "Subject Name", topic: "Title/Topic", teacher: "Teacher's Name", date: "Date", duration: "Duration" },
-  { subject: "Subject Name", topic: "Title/Topic", teacher: "Teacher's Name", date: "Date", duration: "Duration" },
-  { subject: "Subject Name", topic: "Title/Topic", teacher: "Teacher's Name", date: "Date", duration: "Duration" },
-];
 
 export default function SessionRecordings() {
 
   const navigate = useNavigate();
-  const { subjectId } = useParams();   // 👈 important
+  const { subjectId } = useParams();
+
+  const [recordings, setRecordings] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+
+    async function fetchRecordings() {
+
+      try {
+
+        const res = await api.get(
+          `/courses/subjects/${subjectId}/recordings/`
+        );
+
+        setRecordings(res.data || []);
+
+      } catch (err) {
+
+        console.error("Failed to load recordings", err);
+        setRecordings([]);
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    }
+
+    if (subjectId) fetchRecordings();
+
+  }, [subjectId]);
+
+  const filtered = recordings.filter((rec) =>
+    rec.title?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
+
     <div className="sr-page">
 
       <button
@@ -31,11 +62,19 @@ export default function SessionRecordings() {
 
         <div className="sr-header">
 
-          <h2 className="sr-title">Mathematics</h2>
+          <h2 className="sr-title">Session Recordings</h2>
 
           <div className="sr-search">
-            <input type="text" placeholder="Search" />
+
+            <input
+              type="text"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
             <FiSearch className="sr-search-icon" />
+
           </div>
 
         </div>
@@ -55,21 +94,39 @@ export default function SessionRecordings() {
 
         <div className="sr-grid">
 
-          {defaultRecordings.map((rec, index) => (
+          {loading && <p>Loading recordings...</p>}
 
-            <div className="sr-card" key={index}>
+          {!loading && filtered.length === 0 && (
+            <p style={{ opacity: 0.6 }}>
+              No recordings uploaded yet.
+            </p>
+          )}
 
-              <h4 className="sr-card-subject">{rec.subject}</h4>
+          {filtered.map((rec) => (
 
-              <p className="sr-card-topic">{rec.topic}</p>
+            <div className="sr-card" key={rec.id}>
 
-              <p className="sr-card-teacher">{rec.teacher}</p>
+              <h4 className="sr-card-subject">
+                Session
+              </h4>
+
+              <p className="sr-card-topic">
+                {rec.title}
+              </p>
+
+              <p className="sr-card-teacher">
+                Teacher
+              </p>
 
               <div className="sr-card-bottom">
 
-                <span className="sr-card-date">{rec.date}</span>
+                <span className="sr-card-date">
+                  {rec.session_date}
+                </span>
 
-                <span className="sr-card-duration">{rec.duration}</span>
+                <span className="sr-card-duration">
+                  {rec.duration || ""}
+                </span>
 
               </div>
 
@@ -82,5 +139,6 @@ export default function SessionRecordings() {
       </div>
 
     </div>
+
   );
 }

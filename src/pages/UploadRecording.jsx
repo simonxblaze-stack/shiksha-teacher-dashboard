@@ -24,17 +24,18 @@ export default function UploadRecording() {
   };
 
   const handleFileChange = (e) => {
-
     if (e.target.files.length > 0) {
       setVideoFile(e.target.files[0]);
     }
-
     e.target.value = "";
   };
 
   const handleUpload = async () => {
 
-    console.log("Upload clicked");
+    if (!subjectId) {
+      alert("Invalid subject.");
+      return;
+    }
 
     if (!topic.trim()) {
       alert("Please enter a topic/title");
@@ -53,7 +54,7 @@ export default function UploadRecording() {
 
       console.log("Creating Bunny video slot...");
 
-      // 1️⃣ Create video slot via Django
+      // 1️⃣ Create video slot
       const res = await api.post(
         "/courses/recordings/create-video/",
         { title: topic }
@@ -63,11 +64,8 @@ export default function UploadRecording() {
 
       console.log("Video slot created:", videoId);
 
-      // 2️⃣ Correct Bunny Stream upload endpoint
       const uploadUrl =
         `https://video.bunnycdn.com/library/${import.meta.env.VITE_BUNNY_LIBRARY_ID}/videos/${videoId}`;
-
-      console.log("Upload URL:", uploadUrl);
 
       const xhr = new XMLHttpRequest();
 
@@ -91,19 +89,15 @@ export default function UploadRecording() {
             (e.loaded / e.total) * 100
           );
 
-          console.log("Upload progress:", percent);
-
           setUploadProgress(percent);
         }
       };
 
       xhr.onload = async () => {
 
-        console.log("Upload finished:", xhr.status);
-
         if (xhr.status !== 200 && xhr.status !== 201) {
 
-          console.error("Upload error:", xhr.responseText);
+          console.error("Upload failed:", xhr.responseText);
 
           alert("Upload failed. Check console.");
 
@@ -111,9 +105,9 @@ export default function UploadRecording() {
           return;
         }
 
-        console.log("Saving recording metadata...");
+        console.log("Upload finished. Saving metadata...");
 
-        // 3️⃣ Save metadata to Django
+        // 2️⃣ Save recording metadata
         await api.post(
           `/courses/subjects/${subjectId}/recordings/save/`,
           {
@@ -125,6 +119,8 @@ export default function UploadRecording() {
         );
 
         console.log("Recording saved");
+
+        setUploading(false);
 
         navigate(-1);
       };
@@ -163,7 +159,7 @@ export default function UploadRecording() {
 
       <div className="ur-title-container">
 
-        <h2 className="ur-title">Mathematics</h2>
+        <h2 className="ur-title">Session Recording</h2>
 
         <div className="ur-search">
           <input type="text" placeholder="Search" />
@@ -197,9 +193,8 @@ export default function UploadRecording() {
             <label className="ur-label">Session Date</label>
 
             <input
-              type="text"
+              type="date"
               className="ur-input"
-              placeholder="21 Jan 2026"
               value={sessionDate}
               onChange={(e) => setSessionDate(e.target.value)}
             />
