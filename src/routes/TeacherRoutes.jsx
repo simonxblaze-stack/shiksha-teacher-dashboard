@@ -24,8 +24,8 @@ import StudyMaterialView from "../pages/StudyMaterialView";
 
 import SessionRecordings from "../pages/SessionRecordings";
 import UploadRecording from "../pages/UploadRecording";
+import RecordingPlayer from "../pages/RecordingPlayer";
 
-/* LIVE SESSION PAGES */
 import LiveSessions from "../pages/LiveSessions";
 import TeacherCreateLiveSession from "../pages/TeacherCreateLiveSession";
 
@@ -35,25 +35,25 @@ export default function TeacherRoutes() {
   return (
     <Routes>
 
-      {/* ================= DEFAULT REDIRECT ================= */}
+      {/* DEFAULT REDIRECT */}
       <Route path="/" element={<Navigate to="/teacher/dashboard" />} />
 
-      {/* ================= TEACHER LAYOUT ================= */}
+      {/* TEACHER LAYOUT */}
       <Route path="/teacher" element={<TeacherLayout />}>
 
-        {/* ================= PROFILE ================= */}
+        {/* PROFILE */}
         <Route path="profile" element={<Profile />} />
 
-        {/* ================= DASHBOARD ================= */}
+        {/* DASHBOARD */}
         <Route path="dashboard" element={<TeacherDashboard />} />
 
-        {/* ================= SUBJECT LIST ================= */}
+        {/* SUBJECT LIST */}
         <Route path="classes" element={<ClassesList />} />
 
-        {/* ================= SUBJECT DASHBOARD ================= */}
+        {/* SUBJECT DASHBOARD */}
         <Route path="classes/:subjectId" element={<Classes />} />
 
-        {/* ================= ASSIGNMENTS ================= */}
+        {/* ASSIGNMENTS */}
         <Route
           path="classes/:subjectId/assignments"
           element={<Assignments />}
@@ -74,7 +74,7 @@ export default function TeacherRoutes() {
           element={<SubmissionView />}
         />
 
-        {/* ================= QUIZZES ================= */}
+        {/* QUIZZES */}
         <Route
           path="classes/:subjectId/quizzes"
           element={<Quizzes />}
@@ -100,7 +100,7 @@ export default function TeacherRoutes() {
           element={<QuizReviewView />}
         />
 
-        {/* ================= STUDY MATERIALS ================= */}
+        {/* STUDY MATERIALS */}
         <Route
           path="classes/:subjectId/study-materials"
           element={<StudyMaterials />}
@@ -116,7 +116,7 @@ export default function TeacherRoutes() {
           element={<StudyMaterialView />}
         />
 
-        {/* ================= RECORDINGS ================= */}
+        {/* SESSION RECORDINGS */}
         <Route
           path="classes/:subjectId/session-recordings"
           element={<SessionRecordings />}
@@ -127,7 +127,12 @@ export default function TeacherRoutes() {
           element={<UploadRecording />}
         />
 
-        {/* ================= LIVE SESSIONS ================= */}
+        <Route
+          path="classes/:subjectId/session-recordings/:recordingId/:videoId"
+          element={<RecordingPlayer />}
+        />
+
+        {/* LIVE SESSIONS */}
         <Route
           path="classes/:subjectId/live-sessions"
           element={<LiveSessions />}
@@ -138,7 +143,7 @@ export default function TeacherRoutes() {
           element={<TeacherCreateLiveSession />}
         />
 
-        {/* ================= LIVE ROOM ================= */}
+        {/* LIVE ROOM */}
         <Route
           path="live/:id"
           element={<TeacherLiveSession />}

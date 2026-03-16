@@ -47,6 +47,13 @@ export default function SessionRecordings() {
     rec.title?.toLowerCase().includes(search.toLowerCase())
   );
 
+  function formatDuration(seconds) {
+    if (!seconds) return "";
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${String(s).padStart(2, "0")}`;
+  }
+
   return (
 
     <div className="sr-page">
@@ -104,29 +111,41 @@ export default function SessionRecordings() {
 
           {filtered.map((rec) => (
 
-            <div className="sr-card" key={rec.id}>
+            <div
+              className="sr-card"
+              key={rec.id}
+              onClick={() =>
+                navigate(
+                  `/teacher/classes/${subjectId}/session-recordings/${rec.id}/${rec.bunny_video_id}`
+                )
+              }
+            >
 
-              <h4 className="sr-card-subject">
-                Session
-              </h4>
+              <div className="sr-thumb">
 
-              <p className="sr-card-topic">
-                {rec.title}
-              </p>
+                <img
+                  src={
+                    rec.thumbnail_url ||
+                    `https://vz-615730.b-cdn.net/${rec.bunny_video_id}/thumbnail.jpg`
+                  }
+                  alt={rec.title}
+                />
 
-              <p className="sr-card-teacher">
-                Teacher
-              </p>
+                <div className="sr-play">▶</div>
 
-              <div className="sr-card-bottom">
+                {rec.duration_seconds && (
+                  <span className="sr-duration">
+                    {formatDuration(rec.duration_seconds)}
+                  </span>
+                )}
 
-                <span className="sr-card-date">
-                  {rec.session_date}
-                </span>
+              </div>
 
-                <span className="sr-card-duration">
-                  {rec.duration || ""}
-                </span>
+              <div className="sr-info">
+
+                <h4>{rec.title}</h4>
+
+                <p>{rec.session_date}</p>
 
               </div>
 
@@ -141,4 +160,5 @@ export default function SessionRecordings() {
     </div>
 
   );
+
 }
