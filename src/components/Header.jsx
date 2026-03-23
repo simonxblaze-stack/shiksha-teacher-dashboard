@@ -35,6 +35,11 @@ export default function Header({ onMenuClick }) {
     }
   };
 
+  const handleReturnToHomepage = () => {
+    setOpen(false);
+    window.location.href = "https://www.shikshacom.com/";
+  };
+
   return (
     <header className="header">
       <button
@@ -84,6 +89,10 @@ export default function Header({ onMenuClick }) {
               }}
             >
               Change Password <span className="arrow">›</span>
+            </button>
+
+            <button onClick={handleReturnToHomepage}>
+              Return to Homepage <span className="arrow">›</span>
             </button>
 
             <button onClick={handleLogout}>
