@@ -1,0 +1,70 @@
+.lsc-page {
+  padding: 30px;
+}
+
+.lsc-back-btn {
+  margin-bottom: 20px;
+  background: #e0f2f1;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lsc-card {
+  max-width: 600px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.lsc-title {
+  margin-bottom: 20px;
+}
+
+.lsc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.lsc-input,
+.lsc-textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.lsc-textarea {
+  min-height: 80px;
+}
+
+.lsc-row {
+  display: flex;
+  gap: 15px;
+}
+
+.lsc-row > div {
+  flex: 1;
+}
+
+.lsc-submit {
+  margin-top: 10px;
+  padding: 12px;
+  background: #2f7f83;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.lsc-submit:hover {
+  background: #256b6f;
+}
+
+.lsc-error {
+  color: red;
+  margin-bottom: 10px;
+}
