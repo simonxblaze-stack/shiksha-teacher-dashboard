@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/apiClient";
+import "../styles/live-session-create.css";
 
 export default function TeacherCreateLiveSession() {
   const { subjectId } = useParams();
@@ -15,6 +16,13 @@ export default function TeacherCreateLiveSession() {
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const toLocalISOString = (dateStr) => {
+    const date = new Date(dateStr);
+    return new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    ).toISOString();
+  };
 
   const handleSubmit = async () => {
     setError(null);
@@ -36,23 +44,14 @@ export default function TeacherCreateLiveSession() {
         title: form.title,
         description: form.description,
         subject_id: subjectId,
-        // ✅ FIXED HERE
-        start_time: new Date(form.start_time).toISOString(),
-        end_time: new Date(form.end_time).toISOString(),
+        start_time: toLocalISOString(form.start_time),
+        end_time: toLocalISOString(form.end_time),
       });
 
       navigate(-1);
     } catch (err) {
-      console.error(err.response?.data);
-
-      if (err.response?.data) {
-        const msg = Object.values(err.response.data)
-          .flat()
-          .join(" ");
-        setError(msg);
-      } else {
-        setError("Failed to create session.");
-      }
+      console.error(err);
+      setError("Failed to create session.");
     } finally {
       setLoading(false);
     }
@@ -66,82 +65,76 @@ export default function TeacherCreateLiveSession() {
     .slice(0, 16);
 
   return (
-    <div style={{ padding: 20, maxWidth: 500 }}>
-      <h2>Create Live Session</h2>
+    <div className="lsc-page">
 
-      {error && (
-        <p style={{ color: "red", marginBottom: 10 }}>
-          {error}
-        </p>
-      )}
-
-      <input
-        placeholder="Title"
-        value={form.title}
-        onChange={(e) =>
-          setForm({ ...form, title: e.target.value })
-        }
-        style={{ width: "100%", padding: 8 }}
-      />
-
-      <br /><br />
-
-      <textarea
-        placeholder="Description"
-        value={form.description}
-        onChange={(e) =>
-          setForm({ ...form, description: e.target.value })
-        }
-        style={{ width: "100%", padding: 8 }}
-      />
-
-      <br /><br />
-
-      <label>Start Time</label>
-      <input
-        type="datetime-local"
-        value={form.start_time}
-        min={minDateTime}
-        onChange={(e) =>
-          setForm({
-            ...form,
-            start_time: e.target.value,
-          })
-        }
-        style={{ width: "100%", padding: 8 }}
-      />
-
-      <br /><br />
-
-      <label>End Time</label>
-      <input
-        type="datetime-local"
-        value={form.end_time}
-        min={form.start_time || minDateTime}
-        onChange={(e) =>
-          setForm({
-            ...form,
-            end_time: e.target.value,
-          })
-        }
-        style={{ width: "100%", padding: 8 }}
-      />
-
-      <br /><br />
-
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        style={{
-          padding: "10px 20px",
-          background: loading ? "#ccc" : "#007bff",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        {loading ? "Creating..." : "Create Session"}
+      {/* Back */}
+      <button className="lsc-back-btn" onClick={() => navigate(-1)}>
+        ← Back
       </button>
+
+      <div className="lsc-card">
+        <h2 className="lsc-title">Create Live Session</h2>
+
+        {error && <p className="lsc-error">{error}</p>}
+
+        <div className="lsc-form">
+
+          <input
+            className="lsc-input"
+            placeholder="Title"
+            value={form.title}
+            onChange={(e) =>
+              setForm({ ...form, title: e.target.value })
+            }
+          />
+
+          <textarea
+            className="lsc-textarea"
+            placeholder="Description"
+            value={form.description}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
+          />
+
+          <div className="lsc-row">
+            <div>
+              <label>Start Time</label>
+              <input
+                type="datetime-local"
+                className="lsc-input"
+                value={form.start_time}
+                min={minDateTime}
+                onChange={(e) =>
+                  setForm({ ...form, start_time: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <label>End Time</label>
+              <input
+                type="datetime-local"
+                className="lsc-input"
+                value={form.end_time}
+                min={form.start_time || minDateTime}
+                onChange={(e) =>
+                  setForm({ ...form, end_time: e.target.value })
+                }
+              />
+            </div>
+          </div>
+
+          <button
+            className="lsc-submit"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "Creating..." : "Create Session"}
+          </button>
+
+        </div>
+      </div>
     </div>
   );
 }
