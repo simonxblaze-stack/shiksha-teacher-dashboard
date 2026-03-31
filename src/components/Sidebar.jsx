@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { MdDashboard } from "react-icons/md";
 import { FaChalkboardTeacher } from "react-icons/fa";
+import { FiUsers } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
+import { RiLockLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import api from "../api/apiClient";
 import logo from "../assets/Shiksha.svg";
@@ -56,6 +58,18 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
           <span>Dashboard</span>
         </div>
 
+        {/* Student List — navigates to /teacher/students */}
+        <div
+          className="menu-item"
+          onClick={() => {
+            navigate("/teacher/students");
+            setSidebarOpen(false);
+          }}
+        >
+          <FiUsers />
+          <span>Student List</span>
+        </div>
+
         <div className="menu-item menu-label">
           <FaChalkboardTeacher />
           <span>Classes</span>
@@ -77,6 +91,17 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
               {cls.subject_name} ({cls.course_title})
             </p>
           ))}
+        </div>
+
+        <div
+          className="menu-item"
+          onClick={() => {
+            navigate("/teacher/private-sessions");
+            setSidebarOpen(false);
+          }}
+        >
+          <RiLockLine />
+          <span>Private Sessions</span>
         </div>
       </nav>
     </aside>
