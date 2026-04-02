@@ -194,7 +194,7 @@ export default function TeacherDashboard() {
                 id={a.id}
                 title={a.title}
                 subject={a.subject_name || a.teacher}
-                dueDate={new Date(a.due).toLocaleDateString()}
+                dueDate={new Date(a.due).toLocaleDateString("en-GB")}
                 subjectId={a.subject_id}
               />
             ))}
@@ -208,7 +208,7 @@ export default function TeacherDashboard() {
             {filteredActivities.map((item) => (
               <ActivityItem
                 key={item.id}
-                date={new Date(item.created_at).toLocaleDateString()}
+                date={new Date(item.created_at).toLocaleDateString("en-GB")}
                 label={item.type}
                 labelColor={NOTIFICATION_COLORS[item.type] || "green"}
                 lines={[item.title]}
@@ -290,7 +290,7 @@ export default function TeacherDashboard() {
                 id={a.id}
                 title={a.title}
                 subject={a.subject_name || a.teacher}
-                dueDate={new Date(a.due).toLocaleDateString()}
+                dueDate={new Date(a.due).toLocaleDateString("en-GB")}
                 subjectId={a.subject_id}
               />
             ))}
@@ -317,7 +317,7 @@ export default function TeacherDashboard() {
             {filteredActivities.map((item) => (
               <ActivityItem
                 key={item.id}
-                date={new Date(item.created_at).toLocaleDateString()}
+                date={new Date(item.created_at).toLocaleDateString("en-GB")}
                 label={item.type}
                 labelColor={NOTIFICATION_COLORS[item.type] || "green"}
                 lines={[item.title]}
@@ -333,7 +333,7 @@ export default function TeacherDashboard() {
               Schedule
               {selectedDate && (
                 <span style={{ fontWeight: 400, fontSize: "0.8rem", marginLeft: 8 }}>
-                  — {selectedDate.toLocaleDateString()}
+                  — {selectedDate.toLocaleDateString("en-GB")}
                 </span>
               )}
             </h4>
@@ -353,7 +353,7 @@ export default function TeacherDashboard() {
             {filteredSchedule.map((item) => (
               <ActivityItem
                 key={item.id}
-                date={new Date(item.date).toLocaleDateString()}
+                date={new Date(item.date).toLocaleDateString("en-GB")}
                 label={item.type}
                 labelColor={item.labelColor}
                 lines={[item.title]}
