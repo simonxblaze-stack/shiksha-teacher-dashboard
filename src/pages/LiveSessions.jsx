@@ -6,6 +6,24 @@ import { MdCancel } from "react-icons/md";
 import api from "../api/apiClient";
 import "../styles/live-sessions.css";
 
+/* =====================================
+   🔥 COUNTDOWN FUNCTION
+===================================== */
+function getCountdown(startTime) {
+  const now = new Date();
+  const start = new Date(startTime);
+
+  const diff = start - now;
+
+  if (diff <= 0) return "🔴 LIVE";
+
+  const minutes = Math.floor(diff / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
+
+  if (minutes > 0) return `Starts in ${minutes} min`;
+  return `Starts in ${seconds}s`;
+}
+
 export default function LiveSessions() {
   const navigate = useNavigate();
   const { subjectId } = useParams();
@@ -39,6 +57,17 @@ export default function LiveSessions() {
     const interval = setInterval(fetchSessions, 30000);
     return () => clearInterval(interval);
   }, [fetchSessions]);
+
+  /* =====================================
+     🔥 COUNTDOWN AUTO UPDATE
+  ===================================== */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSessions((prev) => [...prev]);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleJoin = (session) => {
     if (!session.can_join) return;
@@ -122,7 +151,9 @@ export default function LiveSessions() {
             <div className="live-sessions-empty">
               <p style={{ fontSize: 32, margin: "0 0 8px" }}>📅</p>
               <p style={{ margin: 0, fontWeight: 600 }}>
-                {search ? "No sessions match your search." : "No sessions scheduled yet."}
+                {search
+                  ? "No sessions match your search."
+                  : "No sessions scheduled yet."}
               </p>
               {!search && subjectId && (
                 <p style={{ margin: "4px 0 0", fontSize: 12 }}>
@@ -140,12 +171,18 @@ export default function LiveSessions() {
               return (
                 <div
                   key={session.id}
-                  className={`session-card ${!session.can_join ? "disabled" : ""}`}
+                  className={`session-card ${
+                    !session.can_join ? "disabled" : ""
+                  }`}
                   onClick={() => handleJoin(session)}
                 >
                   <div className="session-card-info">
-                    <h4 className="session-card-subject">{session.subject_name}</h4>
-                    <p className="session-card-course">{session.course_name}</p>
+                    <h4 className="session-card-subject">
+                      {session.subject_name}
+                    </h4>
+                    <p className="session-card-course">
+                      {session.course_name}
+                    </p>
                     <p className="session-card-topic">{session.title}</p>
                   </div>
 
@@ -169,6 +206,7 @@ export default function LiveSessions() {
                     )}
                   </div>
 
+                  {/* 🔥 UPDATED BOTTOM WITH COUNTDOWN */}
                   <div className="session-card-bottom">
                     <span>
                       {startDate.toLocaleDateString("en-GB", {
@@ -177,12 +215,17 @@ export default function LiveSessions() {
                         year: "numeric",
                       })}
                     </span>
+
                     <span>
                       {startDate.toLocaleTimeString("en-GB", {
                         hour: "2-digit",
                         minute: "2-digit",
                         hour12: true,
                       })}
+                    </span>
+
+                    <span className="starts-in">
+                      {getCountdown(session.start_time)}
                     </span>
                   </div>
                 </div>
