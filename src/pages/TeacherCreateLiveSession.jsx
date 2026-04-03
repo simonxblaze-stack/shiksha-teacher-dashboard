@@ -18,6 +18,24 @@ export default function TeacherCreateLiveSession() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // ✅ FIX: proper local min datetime with buffer
+  const getMinDateTime = () => {
+    const now = new Date();
+
+    // 🔥 ADD BUFFER (prevents backend "past" rejection)
+    now.setMinutes(now.getMinutes() + 2);
+
+    now.setSeconds(0);
+    now.setMilliseconds(0);
+
+    const offset = now.getTimezoneOffset();
+    const local = new Date(now.getTime() - offset * 60000);
+
+    return local.toISOString().slice(0, 16);
+  };
+
+  const minDateTime = getMinDateTime();
+
   const handleSubmit = async () => {
     setError(null);
 
@@ -39,7 +57,7 @@ export default function TeacherCreateLiveSession() {
         description: form.description,
         subject_id: subjectId,
 
-        // ✅ CORRECT for your backend (UTC → Django converts to IST)
+        // ✅ CORRECT (UTC for Django)
         start_time: new Date(form.start_time).toISOString(),
         end_time: new Date(form.end_time).toISOString(),
       });
@@ -54,20 +72,13 @@ export default function TeacherCreateLiveSession() {
         err.response?.data?.start_time?.[0] ||
         err.response?.data?.end_time?.[0] ||
         err.response?.data?.subject_id?.[0] ||
+        err.response?.data?.non_field_errors?.[0] ||
         "Failed to create session."
       );
     } finally {
       setLoading(false);
     }
   };
-
-  // Keep datetime-local format for input
-  const now = new Date();
-  const minDateTime = new Date(
-    now.getTime() - now.getTimezoneOffset() * 60000
-  )
-    .toISOString()
-    .slice(0, 16);
 
   return (
     <div className="lsc-page">
@@ -90,7 +101,6 @@ export default function TeacherCreateLiveSession() {
             <label className="lsc-label">Session Title *</label>
             <input
               className="lsc-input"
-              placeholder="e.g. Chapter 5 — Introduction to Algebra"
               value={form.title}
               onChange={(e) =>
                 setForm({ ...form, title: e.target.value })
@@ -102,7 +112,6 @@ export default function TeacherCreateLiveSession() {
             <label className="lsc-label">Description</label>
             <textarea
               className="lsc-textarea"
-              placeholder="What will you cover in this session? (optional)"
               value={form.description}
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
