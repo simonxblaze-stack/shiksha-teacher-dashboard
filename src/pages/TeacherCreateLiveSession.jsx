@@ -48,11 +48,42 @@ export default function TeacherCreateLiveSession() {
   /* =====================================
      🔥 START NOW
   ===================================== */
-  const handleStartNow = () => {
-    setForm({
-      ...form,
-      start_time: roundToSlot(new Date()),
-    });
+  const handleStartNow = async () => {
+    if (!form.title) {
+      setError("Please enter a session title.");
+      toast.error("Please enter a session title");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const start = new Date();
+      const end = new Date(start.getTime() + form.duration * 60000);
+
+      const res = await api.post("/livestream/sessions/", {
+        title: form.title,
+        description: form.description,
+        subject_id: subjectId,
+        start_time: start.toISOString(),
+        end_time: end.toISOString(),
+        force_live: true,
+      });
+
+      toast.success("Session started!");
+      navigate(`/teacher/live/${res.data.id}`);
+    } catch (err) {
+      console.error(err);
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.non_field_errors?.[0] ||
+        "Failed to start session.";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* =====================================
@@ -188,7 +219,7 @@ export default function TeacherCreateLiveSession() {
                 cursor: "pointer",
               }}
             >
-              ⚡ Start Now
+              Start Now
             </button>
           </div>
 
