@@ -34,13 +34,13 @@ export default function Header({ onMenuClick }) {
       sessionStorage.clear();
 
       setOpen(false);
-      window.location.href = "https://www.shikshacom.com/login";
+      window.location.href = (import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com") + "/login";
     }
   };
 
   const handleReturnToHomepage = () => {
     setOpen(false);
-    window.location.href = "https://www.shikshacom.com/";
+    window.location.href = import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com/";
   };
 
   return (
