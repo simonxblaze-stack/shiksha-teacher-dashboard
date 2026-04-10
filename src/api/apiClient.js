@@ -57,7 +57,7 @@ api.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError);
       // Refresh failed — redirect to login
-      window.location.href = "https://www.shikshacom.com/login";
+      window.location.href = (import.meta.env.VITE_HOME_URL || "https://www.shikshacom.com") + "/login";
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
