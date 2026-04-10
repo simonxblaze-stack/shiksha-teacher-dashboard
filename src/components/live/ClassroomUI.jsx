@@ -9,7 +9,7 @@ import useLiveSessionChat from "../../hooks/useLiveSessionChat";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import { IoChatbubblesOutline } from "react-icons/io5";
 
-export default function ClassroomUI({ role }) {
+export default function ClassroomUI({ role, sessionId: sessionIdProp }) {
   const isPresenter = role === "PRESENTER";
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -19,7 +19,7 @@ export default function ClassroomUI({ role }) {
   const containerRef = useRef(null);
   const room = useRoomContext();
 
-  const sessionId = window.location.pathname.split("/").filter(Boolean).pop();
+  const sessionId = sessionIdProp || window.location.pathname.split("/").filter(Boolean).pop();
   const { messages: chatMessages, sendMessage } = useLiveSessionChat(sessionId);
 
   /* =====================================
