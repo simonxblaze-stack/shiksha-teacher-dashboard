@@ -123,14 +123,14 @@ export default function TeacherControls({ onLeave }) {
         {pauseLoading ? "..." : paused ? "Resume" : "Pause"}
       </button>
 
-      {/* END CALL */}
+      {/* LEAVE */}
       <button
         className="control-btn end-call-btn"
         onClick={handleLeave}
-        title="End session"
+        title="Leave session"
       >
         <MdCallEnd size={18} />
-        End
+        Leave
       </button>
 
     </div>
