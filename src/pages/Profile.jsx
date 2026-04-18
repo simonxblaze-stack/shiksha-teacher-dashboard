@@ -273,14 +273,9 @@ export default function Profile() {
                   {rows.map((row, i) => (
                     <div key={i} className="tp-list-item">
                       <span className="tp-list-num">{i + 1})</span>
-                      <div>
-                        <strong>
-                          {[row.courseTitle, row.board].filter(Boolean).join(" ")}
-                        </strong>
-                        <ul className="tp-sub-list">
-                          {row.subjects.map((s, j) => <li key={j}>{s}</li>)}
-                        </ul>
-                      </div>
+                      <strong>
+                        {[row.courseTitle, row.board].filter(Boolean).join(" ")}
+                      </strong>
                     </div>
                   ))}
                 </div>
