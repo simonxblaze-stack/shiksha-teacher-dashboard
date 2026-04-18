@@ -60,6 +60,12 @@ export default function Profile() {
     fetchData();
   }, []);
 
+  const handleEdit = () => {
+    // Always re-sync edit fields from the latest saved profile before opening
+    if (profile) populateEditFields(profile);
+    setIsEditing(true);
+  };
+
   const handleCancel = () => {
     if (profile) populateEditFields(profile);
     setIsEditing(false);
@@ -78,7 +84,11 @@ export default function Profile() {
         weekend_availability_end: weekendEnd,
       };
       const res = await api.patch("/accounts/teacher/profile/", payload);
-      setProfile(res.data);
+      // Merge payload into API response so custom fields are reflected in view
+      // even if the backend doesn't echo every field back
+      const updated = { ...payload, ...res.data };
+      setProfile(updated);
+      populateEditFields(updated);
       setIsEditing(false);
     } catch (err) {
       console.error(err);
@@ -162,7 +172,7 @@ export default function Profile() {
             </>
           ) : (
             <>
-              <button className="tp-edit-btn" onClick={() => setIsEditing(true)}>
+              <button className="tp-edit-btn" onClick={handleEdit}>
                 Edit Profile
               </button>
               <button
