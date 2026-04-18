@@ -84,9 +84,10 @@ export default function Profile() {
         weekend_availability_end: weekendEnd,
       };
       const res = await api.patch("/accounts/teacher/profile/", payload);
-      // Merge payload into API response so custom fields are reflected in view
-      // even if the backend doesn't echo every field back
-      const updated = { ...payload, ...res.data };
+      // Priority: profile base → API response (server-computed fields) → payload
+      // Payload is last so the user's input always wins, even if the API
+      // returns null/undefined for fields it doesn't yet recognise.
+      const updated = { ...profile, ...res.data, ...payload };
       setProfile(updated);
       populateEditFields(updated);
       setIsEditing(false);
