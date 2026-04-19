@@ -74,6 +74,12 @@ const EMPLOYMENT_STATUS_OPTIONS = [
   "Other",
 ];
 
+const RELATED_SUBJECT_OPTIONS = [
+  "Mathematics", "Science", "Physics", "Chemistry", "Biology",
+  "English", "Social Studies", "History", "Geography",
+  "Computer Science", "Arts", "Music", "Physical Education", "Others",
+];
+
 
 const currentYear = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from(
@@ -84,6 +90,8 @@ const YEAR_OPTIONS = Array.from(
 export default function PrivateDetails() {
   const navigate = useNavigate();
   const qualFileInputRef = useRef(null);
+  const skillFileInputRef = useRef(null);
+  const activeSkillFileIdx = useRef(null);
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -110,6 +118,9 @@ export default function PrivateDetails() {
   const [editIsCurrentlyEmployed, setEditIsCurrentlyEmployed] = useState(false);
   const [editInstitutionName, setEditInstitutionName] = useState("");
   const [editPosition, setEditPosition] = useState("");
+
+  // Specialized Skills
+  const [editSkills, setEditSkills] = useState([]);
 
   // Educational Qualifications
   const [editHighestDegree, setEditHighestDegree] = useState("");
@@ -140,6 +151,14 @@ export default function PrivateDetails() {
     setEditTeachingCerts(p.teaching_certifications || []);
     setEditQualFile(null);
     setEditQualFileRemoved(false);
+    setEditSkills(
+      (p.skill_applications || []).map((s) => ({
+        skill_description: s.skill_description || s.description || "",
+        related_subject: s.related_subject || "",
+        newFile: null,
+        fileRemoved: false,
+      }))
+    );
   };
 
   useEffect(() => {
@@ -160,6 +179,26 @@ export default function PrivateDetails() {
   const handleCancel = () => {
     if (profile) populateEditFields(profile);
     setIsEditing(false);
+  };
+
+  const updateSkillField = (idx, field, value) => {
+    setEditSkills((prev) =>
+      prev.map((s, i) => (i === idx ? { ...s, [field]: value } : s))
+    );
+  };
+
+  const handleSkillFileClick = (idx) => {
+    activeSkillFileIdx.current = idx;
+    skillFileInputRef.current?.click();
+  };
+
+  const handleSkillFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file && activeSkillFileIdx.current !== null) {
+      updateSkillField(activeSkillFileIdx.current, "newFile", file);
+    }
+    e.target.value = "";
+    activeSkillFileIdx.current = null;
   };
 
   const toggleCert = (cert) => {
@@ -195,6 +234,11 @@ const handleQualFileChange = (e) => {
       field_of_study: editFieldOfStudy,
       year_of_completion: editYearOfCompletion,
       teaching_certifications: editTeachingCerts,
+      skill_applications: editSkills.map((es, idx) => ({
+        ...(profile.skill_applications?.[idx] || {}),
+        skill_description: es.skill_description,
+        related_subject: es.related_subject,
+      })),
     };
     try {
       await api.patch("/accounts/teacher/profile/", updates);
@@ -212,6 +256,18 @@ const handleQualFileChange = (e) => {
           qualification_certificate: null,
         });
         setProfile(res.data);
+      }
+
+      for (let idx = 0; idx < editSkills.length; idx++) {
+        const es = editSkills[idx];
+        const skillId = profile.skill_applications?.[idx]?.id;
+        if (es.newFile && skillId) {
+          const fd = new FormData();
+          fd.append("skill_file", es.newFile);
+          await api.patch(`/accounts/teacher/skill/${skillId}/`, fd, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+        }
       }
     } catch (err) {
       console.error("Failed to save private details:", err);
@@ -757,38 +813,137 @@ const handleQualFileChange = (e) => {
         </div>
 
         {/* Specialized Skill */}
-        {skills.length > 0 && skills.map((skill, idx) => (
-          <div className="pd-section" key={idx}>
-            <h2 className="pd-section-title">Specialized Skill</h2>
-            <div className="pd-grid">
+        {skills.length > 0 && skills.map((skill, idx) => {
+          const es = editSkills[idx] || {};
+          const existingSkillFile = !es.fileRemoved ? (skill.skill_file || skill.file || null) : null;
+          return (
+            <div className="pd-section" key={idx}>
+              <h2 className="pd-section-title">Specialized Skill</h2>
+              <div className="pd-grid">
 
-              <div className="pd-field">
-                <label className="pd-label">Skill Name</label>
-                <div className="pd-value">{skill.skill_name || skill.name || "—"}</div>
+                {/* Skill Name — always locked */}
+                <div className="pd-field">
+                  <label className="pd-label">Skill Name</label>
+                  <div className="pd-value-row">
+                    <span className="pd-value-text">{skill.skill_name || skill.name || "—"}</span>
+                    {isEditing && <FiLock className="pd-field-icon" />}
+                  </div>
+                </div>
+
+                <div className="pd-field" />
+
+                {/* Skill Description */}
+                <div className="pd-field pd-full-width">
+                  <label className="pd-label">Skill Description</label>
+                  {isEditing ? (
+                    <div className="pd-input-wrap">
+                      <input
+                        className="pd-input pd-input-clearable"
+                        value={es.skill_description || ""}
+                        onChange={(e) => updateSkillField(idx, "skill_description", e.target.value)}
+                        placeholder="Describe the skill"
+                      />
+                      {es.skill_description && (
+                        <button
+                          className="pd-input-clear-btn"
+                          type="button"
+                          onClick={() => updateSkillField(idx, "skill_description", "")}
+                        >
+                          <FiX />
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="pd-value">{skill.skill_description || skill.description || "—"}</div>
+                  )}
+                </div>
+
+                {/* Related Subject */}
+                <div className="pd-field">
+                  <label className="pd-label">Related Subject</label>
+                  {isEditing ? (
+                    <div className="pd-select-wrap">
+                      <select
+                        className="pd-input pd-select"
+                        value={es.related_subject || ""}
+                        onChange={(e) => updateSkillField(idx, "related_subject", e.target.value)}
+                      >
+                        <option value="">Select subject</option>
+                        {RELATED_SUBJECT_OPTIONS.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                      <FiChevronDown className="pd-select-icon" />
+                    </div>
+                  ) : (
+                    <div className="pd-value">{skill.related_subject || "—"}</div>
+                  )}
+                </div>
+
+                <div className="pd-field" />
+
+                {/* File Related to Skill */}
+                <div className="pd-field pd-full-width">
+                  <label className="pd-label">File Related to Skill</label>
+                  {isEditing ? (
+                    <div className="pd-file-edit-list">
+                      {existingSkillFile && !es.newFile && (
+                        <div className="pd-file-edit-item">
+                          <FiFileText className="pd-file-svg" />
+                          <span className="pd-file-name">{getFileName(existingSkillFile)}</span>
+                          <button
+                            className="pd-file-remove-btn"
+                            type="button"
+                            onClick={() => updateSkillField(idx, "fileRemoved", true)}
+                          >
+                            <FiX />
+                          </button>
+                        </div>
+                      )}
+                      {es.newFile && (
+                        <div className="pd-file-edit-item">
+                          <FiFileText className="pd-file-svg" />
+                          <span className="pd-file-name">{es.newFile.name}</span>
+                          <span className="pd-file-size">
+                            ({(es.newFile.size / (1024 * 1024)).toFixed(1)} MB)
+                          </span>
+                          <button
+                            className="pd-file-remove-btn"
+                            type="button"
+                            onClick={() => updateSkillField(idx, "newFile", null)}
+                          >
+                            <FiX />
+                          </button>
+                        </div>
+                      )}
+                      {!es.newFile && (
+                        <div
+                          className="pd-file-add-btn"
+                          onClick={() => handleSkillFileClick(idx)}
+                        >
+                          <FiFileText className="pd-file-svg" />
+                          <span>[ + Add file ]</span>
+                          <span className="pd-file-add-note">(Max 50 MB)</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <FileDisplay file={skill.skill_file || skill.file} />
+                  )}
+                </div>
+
               </div>
-
-              <div className="pd-field" />
-
-              <div className="pd-field pd-full-width">
-                <label className="pd-label">Skill Description</label>
-                <div className="pd-value">{skill.skill_description || skill.description || "—"}</div>
-              </div>
-
-              <div className="pd-field">
-                <label className="pd-label">Related Subject</label>
-                <div className="pd-value">{skill.related_subject || "—"}</div>
-              </div>
-
-              <div className="pd-field" />
-
-              <div className="pd-field pd-full-width">
-                <label className="pd-label">File Related to Skill</label>
-                <FileDisplay file={skill.skill_file || skill.file} />
-              </div>
-
             </div>
-          </div>
-        ))}
+          );
+        })}
+
+        {/* Hidden file input shared across all skill file pickers */}
+        <input
+          ref={skillFileInputRef}
+          type="file"
+          style={{ display: "none" }}
+          onChange={handleSkillFileChange}
+        />
 
         {/* Documents Verification */}
         <div className="pd-section">
