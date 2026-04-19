@@ -58,6 +58,22 @@ const DEGREE_OPTIONS = [
 
 const CERT_OPTIONS = ["B.Ed", "M.Ed", "CTET", "State TET", "Other"];
 
+const EXPERIENCE_OPTIONS = [
+  "New Teacher (0 years)",
+  "1-2 years",
+  "3-5 years",
+  "6-10 years",
+  "10+ years",
+];
+
+const EMPLOYMENT_STATUS_OPTIONS = [
+  "Unemployed/Looking for opportunities",
+  "Employed Full-time",
+  "Employed Part-time",
+  "Freelance/Independent",
+  "Other",
+];
+
 const currentYear = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from(
   { length: currentYear - 1950 + 1 },
@@ -87,6 +103,13 @@ export default function PrivateDetails() {
   const [editCity, setEditCity] = useState("");
   const [editPinCode, setEditPinCode] = useState("");
 
+  // Teaching Experience
+  const [editExperienceRange, setEditExperienceRange] = useState("");
+  const [editEmploymentStatus, setEditEmploymentStatus] = useState("");
+  const [editIsCurrentlyEmployed, setEditIsCurrentlyEmployed] = useState(false);
+  const [editInstitutionName, setEditInstitutionName] = useState("");
+  const [editPosition, setEditPosition] = useState("");
+
   // Educational Qualifications
   const [editHighestDegree, setEditHighestDegree] = useState("");
   const [editFieldOfStudy, setEditFieldOfStudy] = useState("");
@@ -105,6 +128,11 @@ export default function PrivateDetails() {
     setEditDistrict(p.district || "");
     setEditCity(p.city || "");
     setEditPinCode(p.pin_code || "");
+    setEditExperienceRange(p.experience_range || "");
+    setEditEmploymentStatus(p.employment_status || "");
+    setEditIsCurrentlyEmployed(p.is_currently_employed || false);
+    setEditInstitutionName(p.institution_name || "");
+    setEditPosition(p.position || "");
     setEditHighestDegree(p.highest_degree || "");
     setEditFieldOfStudy(p.field_of_study || "");
     setEditYearOfCompletion(p.year_of_completion || "");
@@ -157,6 +185,11 @@ export default function PrivateDetails() {
       district: editDistrict,
       city: editCity,
       pin_code: editPinCode,
+      experience_range: editExperienceRange,
+      employment_status: editEmploymentStatus,
+      is_currently_employed: editIsCurrentlyEmployed,
+      institution_name: editInstitutionName,
+      position: editPosition,
       highest_degree: editHighestDegree,
       field_of_study: editFieldOfStudy,
       year_of_completion: editYearOfCompletion,
@@ -599,34 +632,99 @@ export default function PrivateDetails() {
 
             <div className="pd-field">
               <label className="pd-label">Years of Teaching Experience</label>
-              <div className="pd-value">{profile.experience_range || "—"}</div>
+              {isEditing ? (
+                <div className="pd-select-wrap">
+                  <select
+                    className="pd-input pd-select"
+                    value={editExperienceRange}
+                    onChange={(e) => setEditExperienceRange(e.target.value)}
+                  >
+                    <option value="">Select experience</option>
+                    {EXPERIENCE_OPTIONS.map((o) => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
+                  </select>
+                  <FiChevronDown className="pd-select-icon" />
+                </div>
+              ) : (
+                <div className="pd-value">{profile.experience_range || "—"}</div>
+              )}
             </div>
 
             <div className="pd-field">
               <label className="pd-label">Current Employment Status</label>
-              <div className="pd-value">{profile.employment_status || "—"}</div>
+              {isEditing ? (
+                <div className="pd-select-wrap">
+                  <select
+                    className="pd-input pd-select"
+                    value={editEmploymentStatus}
+                    onChange={(e) => setEditEmploymentStatus(e.target.value)}
+                  >
+                    <option value="">Select status</option>
+                    {EMPLOYMENT_STATUS_OPTIONS.map((o) => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
+                  </select>
+                  <FiChevronDown className="pd-select-icon" />
+                </div>
+              ) : (
+                <div className="pd-value">{profile.employment_status || "—"}</div>
+              )}
             </div>
 
             <div className="pd-field pd-full-width">
               <label className="pd-label">Currently Employed?</label>
-              <div className="pd-yn-row">
-                <span className={`pd-yn-btn ${profile.is_currently_employed ? "pd-yn-btn--active" : ""}`}>
-                  Yes
-                </span>
-                <span className={`pd-yn-btn ${!profile.is_currently_employed ? "pd-yn-btn--active" : ""}`}>
-                  No
-                </span>
-              </div>
+              {isEditing ? (
+                <div className="pd-yn-row">
+                  <button
+                    type="button"
+                    className={`pd-yn-btn ${editIsCurrentlyEmployed ? "pd-yn-btn--active" : ""}`}
+                    onClick={() => setEditIsCurrentlyEmployed(true)}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    type="button"
+                    className={`pd-yn-btn ${!editIsCurrentlyEmployed ? "pd-yn-btn--active" : ""}`}
+                    onClick={() => setEditIsCurrentlyEmployed(false)}
+                  >
+                    No
+                  </button>
+                </div>
+              ) : (
+                <div className="pd-yn-row">
+                  <span className={`pd-yn-btn ${profile.is_currently_employed ? "pd-yn-btn--active" : ""}`}>Yes</span>
+                  <span className={`pd-yn-btn ${!profile.is_currently_employed ? "pd-yn-btn--active" : ""}`}>No</span>
+                </div>
+              )}
             </div>
 
             <div className="pd-field">
               <label className="pd-label">School/Institution Name</label>
-              <div className="pd-value">{profile.institution_name || "—"}</div>
+              {isEditing ? (
+                <input
+                  className="pd-input"
+                  value={editInstitutionName}
+                  onChange={(e) => setEditInstitutionName(e.target.value)}
+                  placeholder="School or institution name"
+                />
+              ) : (
+                <div className="pd-value">{profile.institution_name || "—"}</div>
+              )}
             </div>
 
             <div className="pd-field">
               <label className="pd-label">Position/Role</label>
-              <div className="pd-value">{profile.position || "—"}</div>
+              {isEditing ? (
+                <input
+                  className="pd-input"
+                  value={editPosition}
+                  onChange={(e) => setEditPosition(e.target.value)}
+                  placeholder="e.g. Math Teacher"
+                />
+              ) : (
+                <div className="pd-value">{profile.position || "—"}</div>
+              )}
             </div>
 
           </div>

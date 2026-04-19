@@ -344,6 +344,17 @@ select.pd-input {
   background: transparent;
   cursor: default;
   user-select: none;
+  font-family: inherit;
+}
+
+button.pd-yn-btn {
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+button.pd-yn-btn:hover:not(.pd-yn-btn--active) {
+  border-color: #1a5f70;
+  color: #1a5f70;
 }
 
 .pd-yn-btn--active {
