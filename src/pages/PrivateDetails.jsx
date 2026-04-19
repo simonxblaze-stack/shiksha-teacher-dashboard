@@ -74,6 +74,15 @@ const EMPLOYMENT_STATUS_OPTIONS = [
   "Other",
 ];
 
+const GOVT_ID_OPTIONS = [
+  "Aadhar Card",
+  "Voter's ID",
+  "PAN Card",
+  "Passport",
+  "Driving License",
+  "Other",
+];
+
 const RELATED_SUBJECT_OPTIONS = [
   "Mathematics", "Science", "Physics", "Chemistry", "Biology",
   "English", "Social Studies", "History", "Geography",
@@ -92,6 +101,7 @@ export default function PrivateDetails() {
   const qualFileInputRef = useRef(null);
   const skillFileInputRef = useRef(null);
   const activeSkillFileIdx = useRef(null);
+  const idFileInputRef = useRef(null);
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -118,6 +128,12 @@ export default function PrivateDetails() {
   const [editIsCurrentlyEmployed, setEditIsCurrentlyEmployed] = useState(false);
   const [editInstitutionName, setEditInstitutionName] = useState("");
   const [editPosition, setEditPosition] = useState("");
+
+  // Documents Verification
+  const [editGovtIdType, setEditGovtIdType] = useState("");
+  const [editIdNumber, setEditIdNumber] = useState("");
+  const [editIdFile, setEditIdFile] = useState(null);
+  const [editIdFileRemoved, setEditIdFileRemoved] = useState(false);
 
   // Specialized Skills
   const [editSkills, setEditSkills] = useState([]);
@@ -151,6 +167,10 @@ export default function PrivateDetails() {
     setEditTeachingCerts(p.teaching_certifications || []);
     setEditQualFile(null);
     setEditQualFileRemoved(false);
+    setEditGovtIdType(p.government_id_type || "");
+    setEditIdNumber(p.id_number || "");
+    setEditIdFile(null);
+    setEditIdFileRemoved(false);
     setEditSkills(
       (p.skill_applications || []).map((s) => ({
         skill_description: s.skill_description || s.description || "",
@@ -190,6 +210,12 @@ export default function PrivateDetails() {
   const handleSkillFileClick = (idx) => {
     activeSkillFileIdx.current = idx;
     skillFileInputRef.current?.click();
+  };
+
+  const handleIdFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) setEditIdFile(file);
+    e.target.value = "";
   };
 
   const handleSkillFileChange = (e) => {
@@ -234,6 +260,8 @@ const handleQualFileChange = (e) => {
       field_of_study: editFieldOfStudy,
       year_of_completion: editYearOfCompletion,
       teaching_certifications: editTeachingCerts,
+      government_id_type: editGovtIdType,
+      id_number: editIdNumber,
       skill_applications: editSkills.map((es, idx) => ({
         ...(profile.skill_applications?.[idx] || {}),
         skill_description: es.skill_description,
@@ -255,6 +283,18 @@ const handleQualFileChange = (e) => {
         const res = await api.patch("/accounts/teacher/profile/", {
           qualification_certificate: null,
         });
+        setProfile(res.data);
+      }
+
+      if (editIdFile) {
+        const fd = new FormData();
+        fd.append("id_document", editIdFile);
+        const res = await api.patch("/accounts/teacher/profile/", fd, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        setProfile(res.data);
+      } else if (editIdFileRemoved) {
+        const res = await api.patch("/accounts/teacher/profile/", { id_document: null });
         setProfile(res.data);
       }
 
@@ -952,19 +992,95 @@ const handleQualFileChange = (e) => {
 
             <div className="pd-field">
               <label className="pd-label">Government ID Type</label>
-              <div className="pd-value">{profile.government_id_type || "—"}</div>
+              {isEditing ? (
+                <div className="pd-select-wrap">
+                  <select
+                    className="pd-input pd-select"
+                    value={editGovtIdType}
+                    onChange={(e) => setEditGovtIdType(e.target.value)}
+                  >
+                    <option value="">Select ID type</option>
+                    {GOVT_ID_OPTIONS.map((o) => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
+                  </select>
+                  <FiChevronDown className="pd-select-icon" />
+                </div>
+              ) : (
+                <div className="pd-value">{profile.government_id_type || "—"}</div>
+              )}
             </div>
 
             <div className="pd-field" />
 
             <div className="pd-field pd-full-width">
               <label className="pd-label">Id Number</label>
-              <div className="pd-value">{profile.id_number || "—"}</div>
+              {isEditing ? (
+                <input
+                  className="pd-input"
+                  value={editIdNumber}
+                  onChange={(e) => setEditIdNumber(e.target.value)}
+                  placeholder="e.g. XXXX XXXX XXXX"
+                />
+              ) : (
+                <div className="pd-value">{profile.id_number || "—"}</div>
+              )}
             </div>
 
             <div className="pd-field pd-full-width">
-              <label className="pd-label">Label</label>
-              <FileDisplay file={profile.id_document} />
+              <label className="pd-label">Upload ID Proof</label>
+              {isEditing ? (
+                <div className="pd-file-edit-list">
+                  {profile.id_document && !editIdFileRemoved && !editIdFile && (
+                    <div className="pd-file-edit-item">
+                      <FiFileText className="pd-file-svg" />
+                      <span className="pd-file-name">{getFileName(profile.id_document)}</span>
+                      <button
+                        className="pd-file-remove-btn"
+                        type="button"
+                        onClick={() => setEditIdFileRemoved(true)}
+                      >
+                        <FiX />
+                      </button>
+                    </div>
+                  )}
+                  {editIdFile && (
+                    <div className="pd-file-edit-item">
+                      <FiFileText className="pd-file-svg" />
+                      <span className="pd-file-name">{editIdFile.name}</span>
+                      <span className="pd-file-size">
+                        ({(editIdFile.size / (1024 * 1024)).toFixed(1)} MB)
+                      </span>
+                      <button
+                        className="pd-file-remove-btn"
+                        type="button"
+                        onClick={() => setEditIdFile(null)}
+                      >
+                        <FiX />
+                      </button>
+                    </div>
+                  )}
+                  {!editIdFile && (
+                    <div
+                      className="pd-file-add-btn"
+                      onClick={() => idFileInputRef.current?.click()}
+                    >
+                      <FiFileText className="pd-file-svg" />
+                      <span>[ + Add file ]</span>
+                      <span className="pd-file-add-note">(Max 5 MB)</span>
+                    </div>
+                  )}
+                  <input
+                    ref={idFileInputRef}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    style={{ display: "none" }}
+                    onChange={handleIdFileChange}
+                  />
+                </div>
+              ) : (
+                <FileDisplay file={profile.id_document} />
+              )}
             </div>
 
           </div>
