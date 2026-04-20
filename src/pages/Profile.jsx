@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "../api/apiClient";
 import "../styles/profile.css";
 
 export default function Profile() {
-  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
+  const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchAll = async () => {
       try {
-        const res = await api.get("/accounts/teacher/profile/");
-        setProfile(res.data);
+        const [profRes, formRes] = await Promise.all([
+          api.get("/accounts/teacher/profile/"),
+          api.get("/accounts/form-fillup/"),
+        ]);
+        setProfile(profRes.data);
+        setForm(formRes.data);
       } catch (err) {
         console.error(err);
         setError("Failed to load profile.");
@@ -21,7 +24,7 @@ export default function Profile() {
         setLoading(false);
       }
     };
-    fetchProfile();
+    fetchAll();
   }, []);
 
   if (loading) {
@@ -32,7 +35,7 @@ export default function Profile() {
     );
   }
 
-  if (error || !profile) {
+  if (error || !profile || !form) {
     return (
       <div className="tp-page">
         <p className="tp-error">{error || "Profile not found."}</p>
@@ -45,6 +48,17 @@ export default function Profile() {
     profile.gender === "male" ? "Mr." : "";
 
   const displayName = prefix ? `${prefix} ${profile.name}` : profile.name;
+
+  const formatDate = (d) => {
+    if (!d) return "—";
+    const dt = new Date(d);
+    if (isNaN(dt)) return "—";
+    return dt.toLocaleDateString("en-GB", {
+      day: "2-digit", month: "short", year: "numeric",
+    });
+  };
+
+  const val = (v) => (v === null || v === undefined || v === "" ? "—" : v);
 
   return (
     <div className="tp-page">
@@ -127,13 +141,66 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* ===== ABOUT ===== */}
-      {profile.bio && (
-        <div className="tp-section">
-          <h2>About</h2>
-          <p className="tp-about-text">{profile.bio}</p>
+      {/* ===== BASIC DETAILS ===== */}
+      <div className="tp-section">
+        <h2>Basic Details</h2>
+        <div className="tp-field-grid">
+          <div className="tp-field"><span className="tp-field-label">Username</span><span className="tp-field-value">{val(form.username)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Email</span><span className="tp-field-value">{val(form.email)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">First Name</span><span className="tp-field-value">{val(form.first_name)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Last Name</span><span className="tp-field-value">{val(form.last_name)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Phone Number</span><span className="tp-field-value">{val(form.phone)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Date of Birth</span><span className="tp-field-value">{formatDate(form.date_of_birth)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Gender</span><span className="tp-field-value tp-cap">{val(form.gender)}</span></div>
         </div>
-      )}
+      </div>
+
+      {/* ===== ADDRESS ===== */}
+      <div className="tp-section">
+        <h2>Address</h2>
+        <div className="tp-field-grid">
+          <div className="tp-field"><span className="tp-field-label">State</span><span className="tp-field-value">{val(form.state)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">District</span><span className="tp-field-value">{val(form.district)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">City / Town</span><span className="tp-field-value">{val(form.city_town)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Pin Code</span><span className="tp-field-value">{val(form.pin_code)}</span></div>
+        </div>
+      </div>
+
+      {/* ===== EDUCATIONAL QUALIFICATIONS ===== */}
+      <div className="tp-section">
+        <h2>Educational Qualifications</h2>
+        <div className="tp-field-grid">
+          <div className="tp-field"><span className="tp-field-label">Highest Degree</span><span className="tp-field-value">{val(profile.highest_degree)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Field of Study</span><span className="tp-field-value">{val(form.field_of_study)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Year of Completion</span><span className="tp-field-value">{val(form.year_of_completion)}</span></div>
+          <div className="tp-field">
+            <span className="tp-field-label">Teaching Certifications</span>
+            <span className="tp-field-value">
+              {form.teaching_certifications?.length ? form.teaching_certifications.join(", ") : "—"}
+            </span>
+          </div>
+          <div className="tp-field">
+            <span className="tp-field-label">Qualification Certificate</span>
+            <span className="tp-field-value">
+              {form.qualification_certificate
+                ? <a href={form.qualification_certificate} target="_blank" rel="noreferrer">View file</a>
+                : "—"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== TEACHING EXPERIENCE ===== */}
+      <div className="tp-section">
+        <h2>Teaching Experience</h2>
+        <div className="tp-field-grid">
+          <div className="tp-field"><span className="tp-field-label">Experience Range</span><span className="tp-field-value">{val(profile.experience_range)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Employment Status</span><span className="tp-field-value">{val(profile.employment_status)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Currently Employed</span><span className="tp-field-value">{form.currently_employed ? "Yes" : "No"}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Current Institution</span><span className="tp-field-value">{val(form.current_institution)}</span></div>
+          <div className="tp-field"><span className="tp-field-label">Current Position</span><span className="tp-field-value">{val(form.current_position)}</span></div>
+        </div>
+      </div>
 
       {/* ===== COURSES & SUBJECTS ===== */}
       <div className="tp-two-col">

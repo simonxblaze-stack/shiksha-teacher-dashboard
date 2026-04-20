@@ -251,6 +251,45 @@
   color: #374151;
 }
 
+/* ===== FIELD GRID ===== */
+
+.tp-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px 32px;
+}
+
+.tp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 8px;
+}
+
+.tp-field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tp-field-value {
+  font-size: 15px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.tp-field-value a {
+  color: #0b5b5b;
+  text-decoration: underline;
+}
+
+.tp-cap {
+  text-transform: capitalize;
+}
+
 /* ===== TWO COLUMN ===== */
 
 .tp-two-col {
@@ -366,7 +405,8 @@
   }
 
   .tp-ratings-row,
-  .tp-two-col {
+  .tp-two-col,
+  .tp-field-grid {
     grid-template-columns: 1fr;
   }
 }
