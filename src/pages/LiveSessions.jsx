@@ -70,6 +70,11 @@ export default function LiveSessions() {
   }, []);
 
   const handleJoin = (session) => {
+    const status = session.computed_status;
+    if (status === "COMPLETED" || status === "CANCELLED") {
+      navigate(`/teacher/live-sessions/${session.id}/detail`);
+      return;
+    }
     if (!session.can_join) return;
     navigate(`/teacher/live/${session.id}`);
   };
@@ -119,8 +124,7 @@ export default function LiveSessions() {
       s.computed_status === "RECONNECTING" || s.computed_status === "WAITING_FOR_TEACHER" ||
       s.computed_status === "SCHEDULED"
   );
-  const completed = filtered.filter((s) => s.computed_status === "COMPLETED");
-  const history = filtered.filter((s) => s.computed_status === "CANCELLED");
+  const history = filtered.filter((s) => s.computed_status === "COMPLETED" || s.computed_status === "CANCELLED").sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
 
   /* =====================================
      🔥 RENDER SESSION CARD
@@ -270,19 +274,7 @@ export default function LiveSessions() {
               </div>
             </div>
 
-            {/* Column 2: Completed */}
-            <div className="live-sessions-column">
-              <h3 className="live-sessions-column-title completed">
-                ✅ Completed
-              </h3>
-              <div className="live-sessions-column-cards">
-                {completed.length > 0
-                  ? completed.map(renderCard)
-                  : renderEmpty("No completed sessions")}
-              </div>
-            </div>
-
-            {/* Column 3: History (Cancelled) */}
+            {/* Column 2: History */}
             <div className="live-sessions-column">
               <h3 className="live-sessions-column-title history">
                 📋 History
@@ -290,7 +282,7 @@ export default function LiveSessions() {
               <div className="live-sessions-column-cards">
                 {history.length > 0
                   ? history.map(renderCard)
-                  : renderEmpty("No cancelled sessions")}
+                  : renderEmpty("No past sessions")}
               </div>
             </div>
           </div>
