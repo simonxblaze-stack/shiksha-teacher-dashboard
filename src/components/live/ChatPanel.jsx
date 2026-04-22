@@ -13,8 +13,6 @@ export default function ChatPanel({ role, messages = [], onSendMessage }) {
   const [input, setInput] = useState("");
   const bottomRef = useRef(null);
 
-  const isTeacherRole = role === "teacher" || role === "PRESENTER";
-
   /* ── Auto scroll on new messages ── */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,7 +45,7 @@ export default function ChatPanel({ role, messages = [], onSendMessage }) {
     <div className="chat-panel">
       <div className="chat-header">CHAT</div>
 
-      <div className="chat-messages">
+      <div className="chat-messages" ref={containerRef}>
         {messages.length === 0 && (
           <p className="chat-empty">No messages yet. Say hello!</p>
         )}
@@ -66,7 +64,6 @@ export default function ChatPanel({ role, messages = [], onSendMessage }) {
           </div>
         ))}
 
-        <div ref={bottomRef} />
       </div>
 
       <div className="chat-input-area">
