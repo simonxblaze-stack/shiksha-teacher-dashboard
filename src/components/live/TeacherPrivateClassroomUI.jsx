@@ -24,6 +24,7 @@ import { useState, useEffect, useCallback } from "react";
 import "./privateClassroom.css";
 import ChatPanel from "./ChatPanel";
 import api from "../../api/apiClient";
+import { useAuth } from "../../contexts/AuthContext";
 import soundManager from "../../utils/soundManager";
 
 /* ═══════════════════════════════════════════════════════════
@@ -234,6 +235,8 @@ function RemoveModal({ participant, onClose, onConfirm }) {
 
 export default function TeacherPrivateClassroomUI({ session, onEndSession }) {
   const room = useRoomContext();
+  const { user } = useAuth();
+  const myUserId = user?.id ? String(user.id) : null;
   const { localParticipant } = useLocalParticipant();
   const participants = useParticipants();
   const timer = useTimer();
@@ -270,10 +273,9 @@ export default function TeacherPrivateClassroomUI({ session, onEndSession }) {
   // ── Load persisted chat messages on mount ──
   useEffect(() => {
     if (!session?.id) return;
-    const myName = localParticipant?.name || "";
     api.get(`/sessions/${session.id}/chat/`).then((res) => {
       const msgs = (res.data || []).map((m) => {
-        const isMe = myName && m.sender_name === myName;
+        const isMe = myUserId && String(m.sender_id) === myUserId;
         return {
           id: m.id,
           sender: m.sender_name,
@@ -290,7 +292,6 @@ export default function TeacherPrivateClassroomUI({ session, onEndSession }) {
   // ── WebSocket for real-time chat — with token auth + auto-reconnect ──
   useEffect(() => {
     if (!session?.id) return;
-    const myName = localParticipant?.name || "";
     let ws = null;
     let reconnectTimer = null;
     let unmounted = false;
